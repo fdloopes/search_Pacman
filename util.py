@@ -17,7 +17,7 @@ import inspect
 import heapq, random
 import cStringIO
 
- 
+
 class FixedRandom:
     def __init__(self):
         fixedState = (3, (2147483648L, 507801126L, 683453281L, 310439348L, 2597246090L, \
@@ -205,6 +205,10 @@ class PriorityQueueWithFunction(PriorityQueue):
 def manhattanDistance( xy1, xy2 ):
     "Returns the Manhattan distance between points xy1 and xy2"
     return abs( xy1[0] - xy2[0] ) + abs( xy1[1] - xy2[1] )
+
+def euclideanHeuristic( xy1, xy2):
+    "Returns the Euclidean distance between points xy1 and xy2"
+    return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
 
 """
   Data structures and functions useful for various course projects

@@ -61,7 +61,6 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
-
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -92,7 +91,6 @@ def depthFirstSearch(problem):
     frontier = Stack()
     explored = []
     actions = []
-    achou = False
 
     class node:
         def __init__(self, path, cost, dad, action):
@@ -109,6 +107,7 @@ def depthFirstSearch(problem):
         successors = problem.getSuccessors(path.path)
         explored.append(path)
         for vertex in successors:
+            achou = False
             for path_ex in explored:
                 if vertex[0] == path_ex.path:
                     achou = True
@@ -124,20 +123,14 @@ def depthFirstSearch(problem):
                     actions.reverse()
                     return actions
 
-            achou = False
-
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-
     from util import Queue
 
     frontier = Queue()
     explored = []
     actions = []
-    achou = False
 
     class node:
         def __init__(self, path, cost, dad, action):
@@ -155,6 +148,7 @@ def breadthFirstSearch(problem):
         explored.append(path)
 
         for vertex in successors:
+            achou = False
             for path_ex in explored:
                 if vertex[0] == path_ex.path:
                     achou = True
@@ -171,13 +165,48 @@ def breadthFirstSearch(problem):
                     actions.reverse()
                     return actions
 
-            achou = False
-
-
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+    from util import euclideanHeuristic
+    import math
+
+    frontier = PriorityQueue()
+    explored = []
+    actions = []
+
+    class node:
+        def __init__(self, path, dad, action):
+            self.path = path
+            self.dad = dad
+            self.action = action
+            self.cost = round(euclideanHeuristic(problem.getStartState(),path),1)
+
+    start = node(problem.getStartState(),'','')
+    frontier.push(start,start.cost)
+
+    while frontier.isEmpty() == False:
+        path = frontier.pop()
+        successors = problem.getSuccessors(path.path)
+        explored.append(path)
+        for vertex in successors:
+            achou = False
+            for path_ex in explored:
+                if vertex[0] == path_ex.path:
+                    achou = True
+
+            if achou == False:
+                successor = node(vertex[0],path.path,vertex[1])
+                frontier.push(successor,successor.cost)
+                if problem.isGoalState(successor.path):
+                    while len(explored) > 0:
+                        ant = explored.pop()
+                        if ant.path == successor.dad:
+                            actions.append(successor.action)
+                            successor = ant
+                    actions.reverse()
+                    return actions
 
 def nullHeuristic(state, problem=None):
     """
@@ -189,11 +218,92 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from util import PriorityQueue
+    from util import euclideanHeuristic
+    import math
 
+    frontier = PriorityQueue()
+    explored = []
+    actions = []
+
+    class node:
+        def __init__(self, path, dad, action):
+            self.path = path
+            self.dad = dad
+            self.action = action
+            h = euclideanHeuristic(path,problem.goal)
+            g = euclideanHeuristic(problem.getStartState(),path)
+            self.cost = round(g + h,1)
+
+    start = node(problem.getStartState(),'','')
+    frontier.push(start,start.cost)
+
+    while frontier.isEmpty() == False:
+        path = frontier.pop()
+        successors = problem.getSuccessors(path.path)
+        explored.append(path)
+        for vertex in successors:
+            achou = False
+            for path_ex in explored:
+                if vertex[0] == path_ex.path:
+                    achou = True
+
+            if achou == False:
+                successor = node(vertex[0],path.path,vertex[1])
+                frontier.push(successor,successor.cost)
+                if problem.isGoalState(successor.path):
+                    while len(explored) > 0:
+                        ant = explored.pop()
+                        if ant.path == successor.dad:
+                            actions.append(successor.action)
+                            successor = ant
+                    actions.reverse()
+                    return actions
+
+def hillClibing(problem):
+    from util import PriorityQueue
+    from util import euclideanHeuristic
+    import math
+
+    frontier = PriorityQueue()
+    explored = []
+    actions = []
+
+    class node:
+        def __init__(self, path, dad, action):
+            self.path = path
+            self.dad = dad
+            self.action = action
+            self.cost = round(euclideanHeuristic(path,problem.goal),1)
+
+    start = node(problem.getStartState(),'','')
+    frontier.push(start,start.cost)
+
+    while frontier.isEmpty() == False:
+        path = frontier.pop()
+        successors = problem.getSuccessors(path.path)
+        explored.append(path)
+        for vertex in successors:
+            achou = False
+            for path_ex in explored:
+                if vertex[0] == path_ex.path:
+                    achou = True
+
+            if achou == False:
+                successor = node(vertex[0],path.path,vertex[1])
+                frontier.push(successor,successor.cost)
+                if problem.isGoalState(successor.path):
+                    while len(explored) > 0:
+                        ant = explored.pop()
+                        if ant.path == successor.dad:
+                            actions.append(successor.action)
+                            successor = ant
+                    actions.reverse()
+                    return actions
 
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
+hcl = hillClibing
