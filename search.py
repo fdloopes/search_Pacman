@@ -71,6 +71,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+# Busca em Profundidade
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -123,6 +124,7 @@ def depthFirstSearch(problem):
                     actions.reverse()
                     return actions
 
+# Busca em Largura
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
@@ -165,6 +167,7 @@ def breadthFirstSearch(problem):
                     actions.reverse()
                     return actions
 
+# Busca por custo uniforme
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
@@ -215,6 +218,7 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+# Busca em A estrela
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
@@ -260,6 +264,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                     actions.reverse()
                     return actions
 
+# Busca de subida de encosta
 def hillClibing(problem):
     from util import PriorityQueue
     from util import euclideanHeuristic
