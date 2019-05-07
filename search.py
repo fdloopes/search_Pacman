@@ -223,7 +223,6 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     from util import PriorityQueue
-    from util import euclideanHeuristic
     import math
 
     frontier = PriorityQueue()
@@ -235,8 +234,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             self.path = path
             self.dad = dad
             self.action = action
-            h = euclideanHeuristic(path,problem.goal)
-            g = euclideanHeuristic(problem.getStartState(),path)
+            h = heuristic(path,problem.goal)
+            g = heuristic(problem.getStartState(),path)
             self.cost = round(g + h,1)
 
     start = node(problem.getStartState(),'','')
