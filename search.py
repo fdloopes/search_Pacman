@@ -11,6 +11,11 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+# Trabalho de Fundamentos de inteligencia artificial
+# Agentes de busca implementados
+# Author: Felipe Lopes
+# Date: 2019
+#
 
 """
 In search.py, you will implement generic search algorithms which are called by
@@ -61,6 +66,13 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
+def nullHeuristic(state, problem=None):
+    """
+    A heuristic function estimates the cost from the current state to the nearest
+    goal in the provided SearchProblem.  This heuristic is trivial.
+    """
+    return 0
+
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -94,13 +106,12 @@ def depthFirstSearch(problem):
     actions = []
 
     class node:
-        def __init__(self, path, cost, dad, action):
+        def __init__(self, path, dad, action):
             self.path = path
-            self.cost = cost
             self.dad = dad
             self.action = action
 
-    start = node(problem.getStartState(),0,'','')
+    start = node(problem.getStartState(),'','')
     frontier.push(start)
 
     while frontier.isEmpty() == False:
@@ -113,7 +124,7 @@ def depthFirstSearch(problem):
                 if vertex[0] == path_ex.path:
                     achou = True
             if achou == False:
-                successor = node(vertex[0],vertex[2],path.path,vertex[1])
+                successor = node(vertex[0],path.path,vertex[1])
                 frontier.push(successor)
                 if problem.isGoalState(successor.path):
                     while len(explored) > 0:
@@ -126,8 +137,6 @@ def depthFirstSearch(problem):
 
 # Busca em Largura
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
     from util import Queue
 
     frontier = Queue()
@@ -135,13 +144,12 @@ def breadthFirstSearch(problem):
     actions = []
 
     class node:
-        def __init__(self, path, cost, dad, action):
+        def __init__(self, path, dad, action):
             self.path = path
-            self.cost = cost
             self.dad = dad
             self.action = action
 
-    start = node(problem.getStartState(),0,'','')
+    start = node(problem.getStartState(),'','')
     frontier.push(start)
 
     while frontier.isEmpty() == False:
@@ -156,7 +164,7 @@ def breadthFirstSearch(problem):
                     achou = True
 
             if achou == False:
-                successor = node(vertex[0],vertex[2],path.path,vertex[1])
+                successor = node(vertex[0],path.path,vertex[1])
                 frontier.push(successor)
                 if problem.isGoalState(successor.path):
                     while len(explored) > 0:
@@ -169,10 +177,7 @@ def breadthFirstSearch(problem):
 
 # Busca por custo uniforme
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
     from util import PriorityQueue
-    from util import euclideanHeuristic
     import math
 
     frontier = PriorityQueue()
@@ -180,13 +185,16 @@ def uniformCostSearch(problem):
     actions = []
 
     class node:
-        def __init__(self, path, dad, action):
+        def __init__(self, path, dad, cost, action):
             self.path = path
             self.dad = dad
             self.action = action
-            self.cost = round(euclideanHeuristic(problem.getStartState(),path),1)
+            if dad == None:
+                self.cost = cost
+            else:
+                self.cost = dad.cost + cost
 
-    start = node(problem.getStartState(),'','')
+    start = node(problem.getStartState(),None,0,'')
     frontier.push(start,start.cost)
 
     while frontier.isEmpty() == False:
@@ -200,23 +208,16 @@ def uniformCostSearch(problem):
                     achou = True
 
             if achou == False:
-                successor = node(vertex[0],path.path,vertex[1])
+                successor = node(vertex[0],path,vertex[2],vertex[1])
                 frontier.push(successor,successor.cost)
                 if problem.isGoalState(successor.path):
                     while len(explored) > 0:
                         ant = explored.pop()
-                        if ant.path == successor.dad:
+                        if ant.path == successor.dad.path:
                             actions.append(successor.action)
                             successor = ant
                     actions.reverse()
                     return actions
-
-def nullHeuristic(state, problem=None):
-    """
-    A heuristic function estimates the cost from the current state to the nearest
-    goal in the provided SearchProblem.  This heuristic is trivial.
-    """
-    return 0
 
 # Busca em A estrela
 def aStarSearch(problem, heuristic=nullHeuristic):
@@ -235,10 +236,13 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             self.dad = dad
             self.action = action
             h = heuristic(path,problem.goal)
-            g = heuristic(problem.getStartState(),path)
-            self.cost = round(g + h,1)
+            if dad == None:
+                self.g=0
+            else:
+                self.g = dad.g + heuristic(dad.path,path)
+            self.cost = round(self.g + h,1)
 
-    start = node(problem.getStartState(),'','')
+    start = node(problem.getStartState(),None,'')
     frontier.push(start,start.cost)
 
     while frontier.isEmpty() == False:
@@ -252,25 +256,21 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                     achou = True
 
             if achou == False:
-                successor = node(vertex[0],path.path,vertex[1])
+                successor = node(vertex[0],path,vertex[1])
                 frontier.push(successor,successor.cost)
                 if problem.isGoalState(successor.path):
                     while len(explored) > 0:
                         ant = explored.pop()
-                        if ant.path == successor.dad:
+                        if ant.path == successor.dad.path:
                             actions.append(successor.action)
                             successor = ant
                     actions.reverse()
                     return actions
 
 # Busca de subida de encosta
-def hillClibing(problem):
-    from util import PriorityQueue
-    from util import euclideanHeuristic
-    import math
+def hillClibingSearch(problem):
+    from searchAgents import manhattanHeuristic
 
-    frontier = PriorityQueue()
-    explored = []
     actions = []
 
     class node:
@@ -278,36 +278,73 @@ def hillClibing(problem):
             self.path = path
             self.dad = dad
             self.action = action
-            self.cost = round(euclideanHeuristic(path,problem.goal),1)
+            self.cost = manhattanHeuristic(path,problem.goal)
 
-    start = node(problem.getStartState(),'','')
-    frontier.push(start,start.cost)
-
-    while frontier.isEmpty() == False:
-        path = frontier.pop()
-        successors = problem.getSuccessors(path.path)
-        explored.append(path)
+    current = node(problem.getStartState(),'','')
+    antecessors = None
+    smallneighbor = current
+    while True:
+        successors = problem.getSuccessors(current.path)
         for vertex in successors:
-            achou = False
-            for path_ex in explored:
-                if vertex[0] == path_ex.path:
-                    achou = True
+            successor = node(vertex[0], current.path, vertex[1])
+            if successor.cost < smallneighbor.cost:
+                smallneighbor = successor
 
-            if achou == False:
-                successor = node(vertex[0],path.path,vertex[1])
-                frontier.push(successor,successor.cost)
-                if problem.isGoalState(successor.path):
-                    while len(explored) > 0:
-                        ant = explored.pop()
-                        if ant.path == successor.dad:
-                            actions.append(successor.action)
-                            successor = ant
-                    actions.reverse()
-                    return actions
+        if smallneighbor.cost < current.cost:
+            current = menor
+            actions.append(current.action)
+            if problem.isGoalState(current.path):
+                return actions
+
+        if antecessors == successors:
+            print "Ficou preso em um maximo local!!!"
+            return actions
+
+        antecessors = successors
+
+# Busca por tempera simulada
+def simulatedAnnealingSearch(problem):
+    from searchAgents import manhattanHeuristic
+    import math
+    import random
+
+    class node:
+        def __init__(self, path, dad, action):
+            self.path = path
+            self.dad = dad
+            self.action = action
+            self.cost = manhattanHeuristic(path,problem.goal)
+
+    actions = []
+    current = node(problem.getStartState(),'','')
+    t = 1.0
+    alfa = 1.5
+
+    while True:
+
+        successors = problem.getSuccessors(current.path)
+        randomvalue = random.randint(0,len(successors)-1)
+        successor = node(successors[randomvalue][0], current.path, successors[randomvalue][1])
+        e = successor.cost - current.cost
+        probability = math.exp(e/t)
+
+        if e > 0:
+            current = successor
+            actions.append(current.action)
+        else:
+             if e < probability:
+               current = successor
+               actions.append(current.action)
+
+        if problem.isGoalState(current.path):
+            return actions
+
+        t = t * alfa
 
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
-hcl = hillClibing
+hcl = hillClibingSearch
+tps = simulatedAnnealingSearch
